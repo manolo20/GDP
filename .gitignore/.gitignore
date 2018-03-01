@@ -1,0 +1,31 @@
+rm(list=ls())
+library(shiny)
+library(dplyr)
+library(ggplot2)
+library(magrittr)
+
+gdp = read.csv("C:/CANSIM 3790030.csv")
+
+ui <- fluidPage(    
+  titlePanel("Yearly Provincial GDP"),      
+  
+  sidebarLayout(position = "right",      
+    selectInput("provInput", "Choose a province:",               
+      choices = c("Newfoundland and Labrador", "Prince Edward Island", "Nova Scotia", "New Brunswick", "Quebec",
+      "Ontario", "Manitoba", "Saskatchewan", "Alberta", "British Columbia", "Yukon", "Northwest Territories", "Nunavut")),
+     mainPanel(plotOutput("myplot"))      
+   )
+   )
+
+server <- function(input, output, session) {
+  select <- reactive({    
+    input$provInput  
+    }) 
+    
+  output$myplot <- renderPlot({   
+    df <- gdp %>% filter(GEO==select())      
+    
+    ggplot(df, aes(x=Year, y=Value, fill=Value))+      
+    geom_bar(stat="identity", width = 0.5)})}
+    
+runApp(list(ui = ui, server = server))
